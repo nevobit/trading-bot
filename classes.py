@@ -12,6 +12,8 @@ class Bot:
         self.direction = direction
         self.win_count = 0
         self.timeframes = timeframes
+        self.daily_entries = []  # Lista para almacenar las entradas diarias
+        self.transactions = []
         #self.ny_tz = pytz.timezone('America/New_York')
 
     def is_trading_day(self):
@@ -199,6 +201,22 @@ class Bot:
                 self.market_order(self.symbol, self.volume, self.direction)
                 pos = mt5.positions_get(symbol=self.symbol)
                 if len(pos) > 0:
+                    self.daily_entries.append({
+                        "Symbol": self.symbol,
+                        "Time": datetime.now(),
+                        # Agregar otros datos relevantes de la entrada diaria
+                    })
+                    for p in pos:
+                        self.transactions.append({
+                            "Symbol": p.symbol,
+                            "Type": "Buy" if p.type == mt5.ORDER_TYPE_BUY else "Sell",
+                            "Volume": p.volume,
+                            "Open Price": p.price_open,
+                            "Close Price": p.price_current,
+                            "Profit": p.profit,
+                            "Time": datetime.now(),
+                            # Agregar otros datos relevantes de la transacción
+                    })
                     curr_no_of_safty_orders = 0
                     multiplied_volume = self.volume * 2
                     deviation = -1
